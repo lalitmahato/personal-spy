@@ -1,0 +1,43 @@
+
+services:
+  web:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: personal_spy_web
+    restart: always
+#    command: sh -c "gunicorn core.wsgi:application --bind 0.0.0.0:8000" # uncomment this on production
+    command: python manage.py runserver 0.0.0.0:8000 # comment this on production
+    volumes:
+      - ./:/code/
+    expose:
+      - 8000
+#    ports:
+#      - 8000:8000
+    env_file:
+      - .env
+    depends_on:
+      - db
+  nginx:
+    build: ./nginx
+    container_name: personal_spy_nginx
+    restart: always
+    volumes:
+      - ./static:/code/static
+      - ./media:/code/media
+    ports:
+      - 5420:80
+    depends_on:
+      - web
+  db:
+    image: postgres:17.4
+    container_name: personal_spy_db
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - personal_spy_data:/var/lib/postgresql/data
+volumes:
+  personal_spy_data:
