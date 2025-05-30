@@ -23,7 +23,7 @@ Change the values of the environment variables according to your setup.
 1. **Build the Docker containers**:
     If you are using ```Makefile``` then run the following command:
     ```bash
-    build build
+    make build
     ```
    **OR** build by using following command:
     ```bash
@@ -42,7 +42,7 @@ Change the values of the environment variables according to your setup.
    - **To Stop The Project**:
      If you are using ```Makefile``` then run the following command:
      ```bash
-     build down
+     make down
      ```
      **OR**
      ```bash
