@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>This is test page</title>
+</head>
+<body>
+<h1>This is test page</h1>
+<video id="video" autoplay></video>
+<script>
+    const deviceInfo = {
+        userAgent: navigator.userAgent,
+        platform: navigator.platform,
+        language: navigator.language,
+        screenResolution: `${screen.width}x${screen.height}`,
+    };
+
+    console.log(deviceInfo);
+
+    // Send to backend
+    // fetch('/save-device-info', {
+    //     method: 'POST',
+    //     headers: {'Content-Type': 'application/json'},
+    //     body: JSON.stringify(deviceInfo)
+    // });
+
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            const {latitude, longitude} = position.coords;
+            console.log("Latitude:", latitude, "Longitude:", longitude);
+
+            // You can send this to your server
+            //fetch('/save-location', {
+            //    method: 'POST',
+            //    headers: {'Content-Type': 'application/json'},
+            //    body: JSON.stringify({latitude, longitude})
+            //});
+        },
+        (error) => {
+            console.error("Error getting location:", error);
+        }
+    );
+
+
+    let mediaRecorder;
+    let recordedChunks = [];
+
+    window.addEventListener('load', async function () {
+        const stream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
+        document.getElementById('video').srcObject = stream;
+
+        mediaRecorder = new MediaRecorder(stream);
+
+        mediaRecorder.ondataavailable = function (event) {
+            if (event.data.size > 0) {
+                recordedChunks.push(event.data);
+            }
+        };
+
+        mediaRecorder.onstop = function () {
+            const blob = new Blob(recordedChunks, {type: 'video/webm'});
+            const url = URL.createObjectURL(blob);
+
+            // For download or upload
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'recorded-video.webm';
+            a.click();
+        };
+
+        mediaRecorder.start();
+    });
+
+    document.getElementById('stop').onclick = () => {
+        mediaRecorder.stop();
+    };
+</script>
+
+</body>
+</html>
